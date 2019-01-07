@@ -54,7 +54,8 @@ export class CardList extends Component {
     this.launchLink = this.launchLink.bind(this);
     this.launchSource = this.launchSource.bind(this);
     this.renderSource = this.renderSource.bind(this);
-    this.modifySmartLaunchUrls = this.modifySmartLaunchUrls.bind(this);
+    this.modifySmartLaunchLinks = this.modifySmartLaunchLinks.bind(this);
+    this.modifySmartLaunchLink = this.modifySmartLaunchLink.bind(this);
   }
 
   /**
@@ -73,7 +74,16 @@ export class CardList extends Component {
             data: {},
           });
         }
-        this.props.takeSuggestion(suggestion);
+
+        // TODO console error if launch-app is used but there are multiple actions
+        if (suggestion.actions && suggestion.actions.length === 1 && suggestion.actions[0].type === 'launch-app') {
+          const [action] = suggestion.actions;
+          let { resource } = action;
+          resource = this.modifySmartLaunchLink(resource);
+          window.open(resource.url, '_blank');
+        } else {
+          this.props.takeSuggestion(suggestion);
+        }
       } else {
         console.error('There was no label on this suggestion', suggestion);
       }
@@ -111,31 +121,39 @@ export class CardList extends Component {
    * 2 - Open: Append a fhirServiceUrl and patientId parameter to the link for use against open endpoints
    * @param {*} card - Card object to process the links for
    */
-  modifySmartLaunchUrls(card) {
+  modifySmartLaunchLinks(card) {
     if (!this.props.isDemoCard) {
-      return card.links.map((link) => {
-        let linkCopy = Object.assign({}, link);
-        if (link.type === 'smart' && this.props.fhirAccessToken) {
-          retrieveLaunchContext(
-            linkCopy, this.props.fhirAccessToken,
-            this.props.patientId, this.props.fhirServerUrl,
-          ).then((result) => {
-            linkCopy = result;
-            return linkCopy;
-          });
-        } else if (link.type === 'smart') {
-          if (link.url.indexOf('?') < 0) {
-            linkCopy.url += '?';
-          } else {
-            linkCopy.url += '&';
-          }
-          linkCopy.url += `fhirServiceUrl=${this.props.fhirServerUrl}`;
-          linkCopy.url += `&patientId=${this.props.patientId}`;
-        }
-        return linkCopy;
-      });
+      return card.links.map(link => this.modifySmartLaunchLink(link));
     }
     return undefined;
+  }
+
+  /**
+   * For SMART links, modify the link URLs as this component processes them according to two scenarios:
+   * 1 - Secured: Retrieve a launch context for the link and append a launch and iss parameter for use against secured endpoints
+   * 2 - Open: Append a fhirServiceUrl and patientId parameter to the link for use against open endpoints
+   * @param {*} card - Card object to process the links for
+   */
+  modifySmartLaunchLink(link) {
+    let linkCopy = Object.assign({}, link);
+    if (link.type === 'smart' && this.props.fhirAccessToken) {
+      retrieveLaunchContext(
+        linkCopy, this.props.fhirAccessToken,
+        this.props.patientId, this.props.fhirServerUrl,
+      ).then((result) => {
+        linkCopy = result;
+        return linkCopy;
+      });
+    } else if (link.type === 'smart') {
+      if (link.url.indexOf('?') < 0) {
+        linkCopy.url += '?';
+      } else {
+        linkCopy.url += '&';
+      }
+      linkCopy.url += `fhirServiceUrl=${this.props.fhirServerUrl}`;
+      linkCopy.url += `&patientId=${this.props.patientId}`;
+    }
+    return linkCopy;
   }
 
   /**
@@ -217,7 +235,7 @@ export class CardList extends Component {
         // -- Links --
         let linksSection;
         if (card.links) {
-          card.links = this.modifySmartLaunchUrls(card) || card.links;
+          card.links = this.modifySmartLaunchLinks(card) || card.links;
           linksSection = card.links.map((link, ind) => (
             <Button
               key={ind}
