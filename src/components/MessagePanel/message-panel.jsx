@@ -15,13 +15,7 @@ const propTypes = {
    * Flag to determine if the message panel is collapsed or expanded
    */
   isExpanded: PropTypes.bool.isRequired,
-  /**
-   * Text to display in the message panel body (i.e. JSON-stringified request or response from CDS service)
-   */
-  panelText: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.object,
-  ]),
+
   /**
    * Text to display in the message panel header
    */
@@ -37,9 +31,25 @@ class MessagePanel extends Component {
 
     this.state = ({
       isExpanded: this.props.isExpanded,
+      messages: '',
     });
 
+    this.addMessage = this.addMessage.bind(this);
     this.toggleExpansion = this.toggleExpansion.bind(this);
+  }
+
+  componentDidMount() {
+    console.error('adding event listener');
+  	window.addEventListener('message', this.addMessage);
+  }
+
+  addMessage(event) {
+    if (event.origin !== location.origin) {
+      console.error('received message for unsupported origin: ', event.origin);
+      return;
+    }
+    
+    this.setState({ messages: this.state.messages + '\n' + event.data });
   }
 
   /**
@@ -50,13 +60,14 @@ class MessagePanel extends Component {
   }
 
   render() {
-    const text = this.props.panelText ? JSON.stringify(this.props.panelText, null, 2).split(/\n/) : '';
+    const text = this.state.messages ? this.state.messages.split(/\n/) : '';
     const textHtml = text ? text.map((l, i) => (
       <div key={`${l}-${i}`}>{l}</div>
     )) : '';
 
     const iconToggle = this.state.isExpanded ? <IconChevronDown /> : <IconChevronRight />;
 
+    //TODO Convert to use terra-scroll?
     return (
       <Card>
         <Heading

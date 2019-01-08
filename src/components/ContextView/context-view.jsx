@@ -127,7 +127,6 @@ export class ContextView extends Component {
           <hr />
           <MessagePanel
             panelHeader=" Messages"
-            panelText="No messages yet received"
             isExpanded
           />
         </div>
