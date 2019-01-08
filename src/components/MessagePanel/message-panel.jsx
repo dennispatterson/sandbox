@@ -44,7 +44,12 @@ class MessagePanel extends Component {
   }
 
   addMessage(event) {
-    this.setState({ messages: this.state.messages + '\n' + event.data });
+    if (event.origin != 'https://kkhe.github.io') {
+      console.log(`Received message from ${event.origin} but it is not in the approved sender list.` );
+      return;
+    }
+
+    this.setState({ messages: event.data });
   }
 
   /**
@@ -55,7 +60,7 @@ class MessagePanel extends Component {
   }
 
   render() {
-    const text = this.state.messages ? this.state.messages.split(/\n/) : '';
+    const text = this.state.messages ? JSON.stringify(this.state.messages, null, 2).split(/\n/) : '';
     const textHtml = text ? text.map((l, i) => (
       <div key={`${l}-${i}`}>{l}</div>
     )) : '';
