@@ -44,11 +44,6 @@ class MessagePanel extends Component {
   }
 
   addMessage(event) {
-    if (event.origin !== location.origin) {
-      console.error('received message for unsupported origin: ', event.origin);
-      return;
-    }
-    
     this.setState({ messages: this.state.messages + '\n' + event.data });
   }
 
