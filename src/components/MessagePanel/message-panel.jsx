@@ -42,6 +42,10 @@ class MessagePanel extends Component {
   	window.addEventListener('message', this.addMessage);
   }
 
+  componentWillUnmount() {
+    document.removeEventListener('message', this.addMessage);
+  }
+
   addMessage(event) {
     if (event.origin != 'https://kkhe.github.io') {
       console.log(`Received message from ${event.origin} but it is not in the approved sender list.` );
