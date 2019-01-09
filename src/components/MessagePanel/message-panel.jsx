@@ -39,11 +39,13 @@ class MessagePanel extends Component {
   }
 
   componentDidMount() {
-  	window.addEventListener('message', this.addMessage);
+    console.error("adding event listener");
+    window.addEventListener('message', this.addMessage);
   }
 
   componentWillUnmount() {
-    document.removeEventListener('message', this.addMessage);
+    console.error("removing event listener");
+    window.removeEventListener('message', this.addMessage);
   }
 
   addMessage(event) {
