@@ -39,7 +39,6 @@ class MessagePanel extends Component {
   }
 
   componentDidMount() {
-    console.error('adding event listener');
   	window.addEventListener('message', this.addMessage);
   }
 
@@ -50,6 +49,7 @@ class MessagePanel extends Component {
     }
 
     this.setState({ messages: event.data });
+    event.source.postMessage("received message id: " + event.data.messageId, event.origin);
   }
 
   /**
