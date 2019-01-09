@@ -48,6 +48,7 @@ class MessagePanel extends Component {
       return;
     }
 
+    console.log(`Received message from ${event.origin}.` );
     this.setState({ messages: event.data });
     event.source.postMessage("received message id: " + event.data.messageId, event.origin);
   }
