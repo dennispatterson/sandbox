@@ -86,7 +86,7 @@ class MessagePanel extends Component {
 
     console.log(`Received message from ${event.origin}.` );
     this.setState({ messages: event.data });
-    replyMessage(event);
+    this.replyMessage(event);
   }
 
   /**
