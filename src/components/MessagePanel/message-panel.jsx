@@ -9,6 +9,7 @@ import IconChevronRight from 'terra-icon/lib/icon/IconChevronRight';
 import IconChevronDown from 'terra-icon/lib/icon/IconChevronDown';
 
 import styles from './message-panel.css';
+const uuid = require('uuid/v4');
 
 const propTypes = {
   /**
@@ -35,6 +36,7 @@ class MessagePanel extends Component {
     });
 
     this.addMessage = this.addMessage.bind(this);
+    this.replyMessage = this.replyMessage.bind(this);
     this.toggleExpansion = this.toggleExpansion.bind(this);
   }
 
@@ -46,6 +48,36 @@ class MessagePanel extends Component {
     window.removeEventListener('message', this.addMessage);
   }
 
+  replyMessage(event) {
+    let payloadStructure;
+
+    if (event.data.messageType.includes('fhir.')) {
+      payloadStructure = {
+        "status": 200,
+        "location": 'https://resource-location/',
+        "outcome": 'Success',
+      };
+    } else if (event.data.messageType.includes('ui.')) {
+      payloadStructure = {
+        "success": true,
+        "details": "Success"
+      };
+    } else {
+      payloadStructure = {
+        "success": true,
+        "details": "Responding to message: `${event.data}`"
+      };
+    }
+
+    let msgStructure = {
+        "messageId": uuid(),
+        "responseToMessageId": event.data.messageId ? event.data.messageId : '',
+        "payload": payloadStructure,
+      };
+
+    event.source.postMessage(msgStructure, event.origin);
+  }
+
   addMessage(event) {
     if (event.origin.includes(document.domain)) {
       console.log(`Received message from ${event.origin} but it is the same as the current document's domain: ${document.domain}.` );
@@ -54,7 +86,7 @@ class MessagePanel extends Component {
 
     console.log(`Received message from ${event.origin}.` );
     this.setState({ messages: event.data });
-    event.source.postMessage("received message id: " + event.data.messageId, event.origin);
+    replyMessage(event);
   }
 
   /**
