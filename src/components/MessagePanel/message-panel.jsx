@@ -47,8 +47,8 @@ class MessagePanel extends Component {
   }
 
   addMessage(event) {
-    if (event.origin != 'https://kkhe.github.io') {
-      console.log(`Received message from ${event.origin} but it is not in the approved sender list.` );
+    if (event.origin.includes(document.domain)) {
+      console.log(`Received message from ${event.origin} but it is the same as the current document's domain: ${document.domain}.` );
       return;
     }
 
