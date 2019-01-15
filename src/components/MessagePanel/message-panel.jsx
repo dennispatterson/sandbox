@@ -51,7 +51,7 @@ class MessagePanel extends Component {
   replyMessage(event) {
     let payloadStructure;
 
-    if (event.data.messageType.includes('fhir.')) {
+    if (event.data.messageType.includes('scratchpad.')) {
       payloadStructure = {
         "status": 200,
         "location": 'https://resource-location/',
