@@ -14,7 +14,7 @@ import Button from 'terra-button';
 import styles from './card-list.css';
 import retrieveLaunchContext from '../../retrieve-data-helpers/launch-context-retrieval';
 import { getServicesByHook, getCardsFromServices } from '../../reducers/helpers/services-filter';
-import { takeSuggestion } from '../../actions/medication-select-actions';
+import { takeSuggestion, takeMessageSuggestion } from '../../actions/medication-select-actions';
 
 const propTypes = {
   /**
@@ -30,6 +30,10 @@ const propTypes = {
    * Function callback to take a specific suggestion from a card
    */
   takeSuggestion: PropTypes.func.isRequired,
+  /**
+   * Function callback to take a specific message suggestion from an app
+   */
+  takeMessageSuggestion: PropTypes.func.isRequired,
   /**
    * Identifier of the Patient resource for the patient in context
    */
@@ -55,6 +59,7 @@ export class CardList extends Component {
     this.launchSource = this.launchSource.bind(this);
     this.renderSource = this.renderSource.bind(this);
     this.modifySmartLaunchUrls = this.modifySmartLaunchUrls.bind(this);
+    this.scratchpadMessage = this.scratchpadMessage.bind(this);
   }
 
   /**
@@ -77,6 +82,27 @@ export class CardList extends Component {
       } else {
         console.error('There was no label on this suggestion', suggestion);
       }
+    }
+  }
+
+
+
+  componentDidMount() {
+    window.addEventListener('message', this.scratchpadMessage);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('message', this.scratchpadMessage);
+  }
+
+  scratchpadMessage(event) {
+    if (event.origin.includes(document.domain)) {
+      console.info(`Card List Received message from ${event.origin} but it is the same as the current document's domain: ${document.domain}.` );
+      return;
+    }
+
+    if (!this.props.isDemoCard) {
+      this.props.takeMessageSuggestion(event.data);
     }
   }
 
@@ -264,6 +290,9 @@ const mapStateToProps = store => ({
 const mapDispatchToProps = dispatch => ({
   takeSuggestion: (suggestion) => {
     dispatch(takeSuggestion(suggestion));
+  },
+  takeMessageSuggestion: (message) => {
+    dispatch(takeMessageSuggestion(message));
   },
 });
 

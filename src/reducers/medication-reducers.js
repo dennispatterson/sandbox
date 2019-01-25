@@ -412,6 +412,32 @@ const medicationReducers = (state = initialState, action) => {
         return state;
       }
 
+      // Updates the dynamically built FHIR Medication Order resource with a suggestion the user takes from a SMART app
+      case types.TAKE_MESSAGE_SUGGESTION: {
+        if (action.message && action.message.messageType && action.message.messageType === 'scratchpad.update' && action.message.payload) {
+          // Updating internal medication if new medication comes through message suggestion
+          if (action.message.payload.resource && action.message.payload.resource.medicationCodeableConcept && state.fhirResource &&
+            !isEqual(action.message.payload.resource.medicationCodeableConcept, state.fhirResource.medicationCodeableConcept)) {
+            const newMedication = action.message.payload.resource.medicationCodeableConcept;
+            if (newMedication.text && newMedication.coding && newMedication.coding[0] && newMedication.coding[0].code) {
+              return Object.assign({}, state, {
+                medListPhase: 'done',
+                decisions: {
+                  ...state.decisions,
+                  prescribable: {
+                    name: newMedication.text,
+                    id: newMedication.coding[0].code,
+                  },
+                },
+              });
+            }
+            console.warn('Suggested resource does not have text and/or coding code in medicationCodeableConcept property', newMedication);
+          }
+        }
+
+        return state;
+      }
+
       default:
         return state;
     }

@@ -97,3 +97,14 @@ export function takeSuggestion(suggestion) {
     suggestion,
   };
 }
+/**
+ * Takes action on the messaging suggestion from the SMART app.
+ *
+ * @param {*} message - Object containing the scratchpad message suggestion chosen from the app (see format here: https://github.com/smart-on-fhir/smart-on-fhir.github.io/wiki/SMART-Web-Messaging#messagetype--scratchpad-fhir-api-interactions)
+ */
+export function takeMessageSuggestion(message) {
+  return {
+    type: types.TAKE_MESSAGE_SUGGESTION,
+    message,
+  };
+}
