@@ -9,6 +9,7 @@ import IconChevronRight from 'terra-icon/lib/icon/IconChevronRight';
 import IconChevronDown from 'terra-icon/lib/icon/IconChevronDown';
 
 import styles from './message-panel.css';
+import { format } from 'util';
 const uuid = require('uuid/v4');
 
 const propTypes = {
@@ -32,7 +33,7 @@ class MessagePanel extends Component {
 
     this.state = ({
       isExpanded: this.props.isExpanded,
-      messages: '',
+      messages: [],
     });
 
     this.addMessage = this.addMessage.bind(this);
@@ -85,7 +86,19 @@ class MessagePanel extends Component {
     }
 
     console.log(`Received message from ${event.origin}.` );
-    this.setState({ messages: event.data });
+
+    if (!event.data.messageId) {
+      console.log(`Message did not have a messageId and will be ignored.`);
+      return;
+    }
+
+    if (!event.data.messageType) {
+      console.log(`Message did not have a messageType and will be ignored.` );
+      return;
+    }
+
+    const message = JSON.stringify(event.data, null, 2);
+    this.setState({ messages: [...this.state.messages, message] });
     this.replyMessage(event);
   }
 
@@ -97,14 +110,18 @@ class MessagePanel extends Component {
   }
 
   render() {
-    const text = this.state.messages ? JSON.stringify(this.state.messages, null, 2).split(/\n/) : '';
-    const textHtml = text ? text.map((l, i) => (
-      <div key={`${l}-${i}`}>{l}</div>
-    )) : '';
+    const cards = this.state.messages.map((item, i) => (
+        <Card.Body key={`card-${i}`}>
+        <div key={`item-${i}`} className={cx(styles['fhir-view'], styles['panel-text'], styles['panel-height'])}>
+          <pre>
+            {item}
+          </pre>
+        </div>
+      </Card.Body>
+      ));
 
     const iconToggle = this.state.isExpanded ? <IconChevronDown /> : <IconChevronRight />;
 
-    //TODO Convert to use terra-scroll?
     return (
       <Card>
         <Heading
@@ -118,13 +135,7 @@ class MessagePanel extends Component {
           {this.props.panelHeader}
         </Heading>
         <Toggle isOpen={this.state.isExpanded} isAnimated>
-          <Card.Body>
-            <div className={cx(styles['fhir-view'], styles['panel-text'], styles['panel-height'])}>
-              <pre>
-                {textHtml}
-              </pre>
-            </div>
-          </Card.Body>
+          {cards}
         </Toggle>
       </Card>
     );
