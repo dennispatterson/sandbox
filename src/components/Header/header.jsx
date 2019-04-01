@@ -64,7 +64,7 @@ const propTypes = {
 
 /**
  * This component represents the Header for the application, which encompasses the title, logo, and several configuration options. The header allows the user
- * to select between different hook views (i.e. patient-view and medication-prescribe), and presents options to change the FHIR server and/or the patient in 
+ * to select between different hook views (i.e. patient-view and medication-prescribe), and presents options to change the FHIR server and/or the patient in
  * context, add CDS services, among other options.
  */
 export class Header extends Component {
@@ -123,7 +123,7 @@ export class Header extends Component {
 
   /**
    * Determine how to make a hook tab display as the current or "active" tab or another tab
-   * @param {*} hook - the name of the hook 
+   * @param {*} hook - the name of the hook
    */
   getNavClasses(hook) {
     return this.props.hook === hook ? cx(styles['nav-links'], styles['active-link']) : styles['nav-links'];

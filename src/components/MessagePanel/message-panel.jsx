@@ -9,7 +9,7 @@ import IconChevronRight from 'terra-icon/lib/icon/IconChevronRight';
 import IconChevronDown from 'terra-icon/lib/icon/IconChevronDown';
 
 import styles from './message-panel.css';
-import { format } from 'util';
+
 const uuid = require('uuid/v4');
 
 const propTypes = {
@@ -54,46 +54,46 @@ class MessagePanel extends Component {
 
     if (event.data.messageType.includes('scratchpad.')) {
       payloadStructure = {
-        "status": 200,
-        "location": 'https://resource-location/',
-        "outcome": 'Success',
+        status: 200,
+        location: 'https://resource-location/',
+        outcome: 'Success',
       };
     } else if (event.data.messageType.includes('ui.')) {
       payloadStructure = {
-        "success": true,
-        "details": "Success"
+        success: true,
+        details: 'Success',
       };
     } else {
       payloadStructure = {
-        "success": true,
-        "details": "Responding to message: `${event.data}`"
+        success: true,
+        details: `Responding to message: ${event.data}`,
       };
     }
 
-    let msgStructure = {
-        "messageId": uuid(),
-        "responseToMessageId": event.data.messageId ? event.data.messageId : '',
-        "payload": payloadStructure,
-      };
+    const msgStructure = {
+      messageId: uuid(),
+      responseToMessageId: event.data.messageId ? event.data.messageId : '',
+      payload: payloadStructure,
+    };
 
     event.source.postMessage(msgStructure, event.origin);
   }
 
   addMessage(event) {
     if (event.origin.includes(document.domain)) {
-      console.log(`Received message from ${event.origin} but it is the same as the current document's domain: ${document.domain}.` );
+      console.log(`Received message from ${event.origin} but it is the same as the current document's domain: ${document.domain}.`);
       return;
     }
 
-    console.log(`Received message from ${event.origin}.` );
+    console.log(`Received message from ${event.origin}.`);
 
     if (!event.data.messageId) {
-      console.log(`Message did not have a messageId and will be ignored.`);
+      console.log('Message did not have a messageId and will be ignored.');
       return;
     }
 
     if (!event.data.messageType) {
-      console.log(`Message did not have a messageType and will be ignored.` );
+      console.log('Message did not have a messageType and will be ignored.');
       return;
     }
 
@@ -111,14 +111,14 @@ class MessagePanel extends Component {
 
   render() {
     const cards = this.state.messages.map((item, i) => (
-        <Card.Body key={`card-${i}`}>
+      <Card.Body key={`card-${i}`}>
         <div key={`item-${i}`} className={cx(styles['fhir-view'], styles['panel-text'], styles['panel-height'])}>
           <pre>
             {item}
           </pre>
         </div>
       </Card.Body>
-      ));
+    ));
 
     const iconToggle = this.state.isExpanded ? <IconChevronDown /> : <IconChevronRight />;
 

@@ -62,6 +62,14 @@ export class CardList extends Component {
     this.scratchpadMessage = this.scratchpadMessage.bind(this);
   }
 
+  componentDidMount() {
+    window.addEventListener('message', this.scratchpadMessage);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('message', this.scratchpadMessage);
+  }
+
   /**
    * Take a suggestion from a CDS service based on action on from a card. Also pings the analytics endpoint (if any) of the
    * CDS service to notify that a suggestion was taken
@@ -85,19 +93,9 @@ export class CardList extends Component {
     }
   }
 
-
-
-  componentDidMount() {
-    window.addEventListener('message', this.scratchpadMessage);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('message', this.scratchpadMessage);
-  }
-
   scratchpadMessage(event) {
     if (event.origin.includes(document.domain)) {
-      console.info(`Card List Received message from ${event.origin} but it is the same as the current document's domain: ${document.domain}.` );
+      console.info(`Card List Received message from ${event.origin} but it is the same as the current document's domain: ${document.domain}.`);
       return;
     }
 
@@ -158,7 +156,7 @@ export class CardList extends Component {
           }
           linkCopy.url += `fhirServiceUrl=${this.props.fhirServerUrl}`;
           linkCopy.url += `&patientId=${this.props.patientId}`;
-          linkCopy.url += `&smart_messaging_origin=${location.origin}`;
+          linkCopy.url += `&smart_messaging_origin=${window.location.origin}`;
         }
         return linkCopy;
       });
