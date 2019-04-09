@@ -63,7 +63,7 @@ class MessagePanel extends Component {
         success: true,
         details: 'Success',
       };
-    };
+    }
 
     const msgStructure = {
       messageId: uuid(),
