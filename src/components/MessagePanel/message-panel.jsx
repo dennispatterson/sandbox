@@ -63,16 +63,11 @@ class MessagePanel extends Component {
         success: true,
         details: 'Success',
       };
-    } else {
-      payloadStructure = {
-        success: true,
-        details: `Responding to message: ${event.data}`,
-      };
-    }
+    };
 
     const msgStructure = {
       messageId: uuid(),
-      responseToMessageId: event.data.messageId ? event.data.messageId : '',
+      responseToMessageId: event.data.messageId,
       payload: payloadStructure,
     };
 
@@ -94,6 +89,11 @@ class MessagePanel extends Component {
 
     if (!event.data.messageType) {
       console.log('Message did not have a messageType and will be ignored.');
+      return;
+    }
+
+    if (!(event.data.messageType.includes('scratchpad.') || event.data.messageType.includes('ui.'))) {
+      console.log('Message did not have a supported messageType and will be ignored.');
       return;
     }
 
